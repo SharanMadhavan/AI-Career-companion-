@@ -1,0 +1,7 @@
+{
+  "name": "AI Career Companion",
+  "description": "An AI-powered tool to help users tailor their resumes, generate interview questions, and practice for interviews based on specific job descriptions.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}

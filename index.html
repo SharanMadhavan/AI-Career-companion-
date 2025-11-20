@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Career Companion</title>
+    
+    <!-- Block Chrome extension interference early -->
+    <script>
+      // Comprehensive error suppression for Chrome extensions
+      window._suppress_chrome_errors = true;
+      
+      // Override console methods to filter extension errors
+      const originalWarn = console.warn;
+      const originalError = console.error;
+      const originalLog = console.log;
+      
+      // Helper to check if message is from extension
+      function isExtensionMessage(msg) {
+        const str = String(msg).toLowerCase();
+        return str.includes('chrome') || 
+               str.includes('extension') || 
+               str.includes('runtime') || 
+               str.includes('blocked') ||
+               str.includes('unauthorized origin') ||
+               (typeof msg === 'object' && (msg?.chrome || msg?.extension));
+      }
+      
+      console.warn = function(...args) {
+        if (args.some(arg => isExtensionMessage(arg))) {
+          return;
+        }
+        return originalWarn.apply(console, args);
+      };
+      
+      console.error = function(...args) {
+        if (args.some(arg => isExtensionMessage(arg))) {
+          return;
+        }
+        return originalError.apply(console, args);
+      };
+      
+      console.log = function(...args) {
+        if (args.some(arg => isExtensionMessage(arg))) {
+          return;
+        }
+        return originalLog.apply(console, args);
+      };
+      
+      // Intercept errors at the window level
+      window.addEventListener('error', function(event) {
+        const msg = String(event.message || event.error || '').toLowerCase();
+        if (msg.includes('chrome') || msg.includes('extension') || msg.includes('runtime') || msg.includes('blocked')) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+      }, true);
+      
+      window.addEventListener('unhandledrejection', function(event) {
+        const msg = String(event.reason || '').toLowerCase();
+        if (msg.includes('chrome') || msg.includes('extension') || msg.includes('runtime')) {
+          event.preventDefault();
+        }
+      }, true);
+      
+      // Block extension messages
+      const originalPostMessage = window.postMessage;
+      window.postMessage = function(...args) {
+        if (args[0]?.chrome || isExtensionMessage(args[0])) return;
+        return originalPostMessage.apply(window, args);
+      };
+    </script>
+    
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+              display: ['Space Grotesk', 'sans-serif'],
+            },
+            colors: {
+              slate: {
+                850: '#172033',
+                900: '#0f172a',
+                950: '#020617',
+              },
+              cyan: {
+                450: '#00aaff',
+              }
+            },
+            animation: {
+              'blob': 'blob 7s infinite',
+              'fade-in': 'fadeIn 0.5s ease-out forwards',
+              'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            },
+            keyframes: {
+              blob: {
+                '0%': { transform: 'translate(0px, 0px) scale(1)' },
+                '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
+                '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+                '100%': { transform: 'translate(0px, 0px) scale(1)' },
+              },
+              fadeIn: {
+                '0%': { opacity: '0', transform: 'translateY(10px)' },
+                '100%': { opacity: '1', transform: 'translateY(0)' },
+              }
+            }
+          }
+        }
+      }
+    </script>
+  <script type="importmap">
+{
+  "imports": {
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.29.1",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-router-dom": "https://aistudiocdn.com/react-router-dom@^7.9.6"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body class="font-sans antialiased text-slate-900 dark:text-slate-100 bg-gray-50 dark:bg-slate-950 transition-colors duration-300 selection:bg-cyan-500 selection:text-white">
+    <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>
